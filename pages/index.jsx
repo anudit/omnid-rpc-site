@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import { InputGroup, InputLeftElement, IconButton, Heading, Input, Flex, Text, Select, Button, useColorMode } from "@chakra-ui/react";
-import { SunIcon, MoonIcon } from "@chakra-ui/icons";
+import { chakra, InputGroup, InputLeftElement, IconButton, Heading, Input, Flex, Text, Select, Button, useColorMode } from "@chakra-ui/react";
+import { Box, SunIcon, MoonIcon, ArrowRightIcon, ArrowDownIcon, ChevronRightIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { HotKeys } from "react-hotkeys";
 import fuzzy from 'fuzzy';
 import dynamic from 'next/dynamic'
@@ -34,14 +34,11 @@ export default function App() {
   let [ filterValue, setFilterValue ] = useState("");
   let [ selectedChain, setSelectedChain ] = useState('mainnet');
   let [ selectedMethod, setSelectedMethod ] = useState('eth_chainId');
-  let [ rpcInput, setRpcInput ] = useState({
-    "id": 42,
-    "jsonrpc": "2.0",
-    "method": 'eth_chainId',
-  });
-  let [ rpcOutput, setRpcOutput ] = useState([]);
+  let [ rpcInput, setRpcInput ] = useState({ "id": 42, "jsonrpc": "2.0", "method": 'eth_chainId' });
+  let [ rpcOutput, setRpcOutput ] = useState({});
   let [ loading, setLoading ] = useState(false);
-  let {colorMode, toggleColorMode} = useColorMode();
+  let [ history, setHistory ] = useState([]);
+  let { colorMode, toggleColorMode } = useColorMode();
 
   function updateInputs(){
 
@@ -87,7 +84,20 @@ export default function App() {
         "accept": "*/*",
         "content-type": "application/json",
       }
-    }).then(e=>e.json()).then(setRpcOutput).catch((e)=>{
+    }).then(e=>e.json()).then((e)=>{
+      setRpcOutput(e);
+      setHistory((current)=>{
+        let newHist = current.concat([{
+          selectedChain: selectedChain,
+          time: new Date(),
+          method: rpcInput?.method,
+          params: Boolean(rpcInput?.params) ? rpcInput?.params: null,
+          output: e
+        }])
+        console.log('newHist', newHist);
+        return newHist;
+      })
+    }).catch((e)=>{
       console.log('exec error', e);
       setRpcOutput(e.message);
     }).finally(()=>{
@@ -108,9 +118,9 @@ export default function App() {
     <Flex direction="column">
 
       <Flex direction='row' height="50px" borderBottom="1px" borderBottomColor='hsl(0deg 0% 9%)' w="100%" justifyContent='space-around' alignItems='center'>
-        <Flex w={{base:"100%", md:"33%"}} direction="row">
-          <OmnidIcon boxSize={6} ml={4}/>
-          <Text ml={4}>
+        <Flex w={{base:"fit-content", md:"33%"}} direction="row">
+          <OmnidIcon boxSize={6} mx={4}/>
+          <Text ml={4} display={{base:"none", md:"flex"}}>
             Playground
           </Text>
         </Flex>
@@ -126,13 +136,13 @@ export default function App() {
             }
           </Select>
         </Flex>
-        <Flex w={{base:"100%", md:"33%"}} alignItems="center" flexDirection='row-reverse'>
+        <Flex w={{base:"fit-content", md:"33%"}} alignItems="center" flexDirection='row-reverse'>
           <IconButton mr={4} variant="ghost" onClick={toggleColorMode}  icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}/>
         </Flex>
       </Flex>
 
       <Flex direction={{base: "column", md:"row" }} minHeight='calc(100vh - 50px)'>
-        <Flex direction="column" width={{base: "100%", md: "300px"}} borderRightWidth="1px" borderRightColor='hsl(0deg 0% 9%)' p={4}>
+        <Flex direction="column" height={{base: "400px", md: "calc(100vh - 50px)"}} overflowY="scroll" width={{base: "100%", md: "350px"}} borderRightWidth="1px" borderRightColor='hsl(0deg 0% 9%)' p={4}>
           <InputGroup>
             <InputLeftElement pointerEvents='none' >
               <SearchIcon color='gray.300' />
@@ -153,7 +163,7 @@ export default function App() {
                   transition="all 0.3s"
                   px={2}
                   py={1}
-                  my='2px'
+                  my='1px'
                   borderRadius="5px"
                   cursor="pointer"
                   onClick={()=>{
@@ -174,63 +184,67 @@ export default function App() {
           }
         </Flex>
 
-          <Flex direction="column" width={{base: "100%", md: "calc( calc(100% - 300px) / 1.5 )"}} px={6} py={4} borderRightWidth="1px" borderRightColor='hsl(0deg 0% 9%)'>
-            <Heading fontFamily='monospace'>
-              {selectedMethod}
-            </Heading>
-            <Text fontWeight={300}>
-              {supportedFunctions[selectedMethod].description}
-            </Text>
-            {
-              supportedFunctions[selectedMethod].params.length ? (
-                <Flex mt={4} direction="column">
-                  <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>PARAMS</Text>
-                  <Flex direction='column'>
-                    {
-                      supportedFunctions[selectedMethod].params.map((param, id)=>{
-                        return (
-                          <Flex
-                            key={id}
-                            direction="column"
-                            background={`hsl(0deg 0% 9% / ${colorMode === 'dark' ? 8 : 1}0%)`}
-                            p={3}
-                            borderRadius="8px"
-                            mb={4}
-                          >
-                            <Flex direction="row" align="center">
-                              <Text>{param?.name}
-                              {
-                                param?.required === true ? (<span style={{color:"red", display:'inline'}}>&nbsp;*</span>) : (<></>)
-                              }
-                              </Text>
-                              <Text color="hsl(0deg 0% 50% / 50%)" fontSize="xs" ml={1}>
-                                ({param.type})
-                              </Text>
-                            </Flex>
-                            <Input id={'param_' + param?.name} onChange={updateInputs} mt={1}/>
+        <Flex direction="column" width={{base: "100%", md: "calc( calc(100% - 350px) / 1.5 )"}} px={6} py={4} borderRightWidth="1px" borderRightColor='hsl(0deg 0% 9%)'>
+          <Heading fontFamily='monospace'>
+            {selectedMethod}
+          </Heading>
+          <Text fontWeight={300}>
+            {supportedFunctions[selectedMethod].description}
+          </Text>
+          {
+            supportedFunctions[selectedMethod].params.length ? (
+              <Flex mt={4} direction="column">
+                <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>PARAMS</Text>
+                <Flex direction='column'>
+                  {
+                    supportedFunctions[selectedMethod].params.map((param, id)=>{
+                      return (
+                        <Flex
+                          key={id}
+                          direction="column"
+                          background={`hsl(0deg 0% 9% / ${colorMode === 'dark' ? 8 : 1}0%)`}
+                          p={3}
+                          borderRadius="8px"
+                          mb={4}
+                        >
+                          <Flex direction="row" align="center">
+                            <Text>{param?.name}
+                            {
+                              param?.required === true ? (<span style={{color:"red", display:'inline'}}>&nbsp;*</span>) : (<></>)
+                            }
+                            </Text>
+                            <Text color="hsl(0deg 0% 50% / 50%)" fontSize="xs" ml={1}>
+                              ({param.type})
+                            </Text>
                           </Flex>
-                        )
-                      })
-                    }
-                  </Flex>
+                          <Input id={'param_' + param?.name} onChange={updateInputs} mt={1} placeholder={param?.description}/>
+                        </Flex>
+                      )
+                    })
+                  }
                 </Flex>
-              ) : (<></>)
-            }
-            <Button w="fit-content" onClick={executeCall} colorScheme="blue" size="sm" mt={4} isDisabled={loading} isLoading={loading}>
-              Execute
-            </Button>
-          </Flex>
+              </Flex>
+            ) : (<></>)
+          }
+          <Button w="fit-content" onClick={executeCall} colorScheme="blue" size="sm" mt={4} isDisabled={loading} isLoading={loading}>
+            Execute
+          </Button>
+        </Flex>
 
-        <Flex
-          direction="column"
-          width={{base: "100%", md: "calc( calc(100% - 300px) / 3 )"}}
-          p={4}
-        >
+        <Flex direction="column" width={{base: "100%", md: "calc( calc(100% - 350px) / 3 )"}} p={4} >
           <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>Request</Text>
           <ReactJson src={rpcInput} theme={colorMode === 'dark' ? 'colors' : 'bright:inverted'} name={null} style={{padding: '5px', borderRadius: '5px', lineBreak:'anywhere !important'}} sortKeys={true}/>
           <br/>
           <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>Response</Text>
           <ReactJson src={rpcOutput} theme={colorMode === 'dark' ? 'colors' : 'bright:inverted'} name={null} style={{padding: '5px', borderRadius: '5px', lineBreak:'anywhere !important'}} sortKeys={true}/>
+          <br/>
+          <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>History</Text>
+          {
+            history.map((hist, oid)=>(
+                <HistoryItem history={hist} key={oid} />
+              )
+            )
+          }
         </Flex>
       </Flex>
     </Flex>
@@ -239,3 +253,48 @@ export default function App() {
 }
 
 
+const HistoryItem = ({history, key}) => {
+
+  const [isOpen, setIsOpen] = useState(false);
+  let { colorMode } = useColorMode();
+
+  return (
+    <Flex
+      direction="column"
+      key={key}
+      background={`hsl(0deg 0% 9% / ${colorMode === 'dark' ? 8 : 1}0%)`}
+      p={3}
+      borderRadius="8px"
+      mb={1}
+      cursor="pointer"
+    >
+      <Flex direction="row" onClick={()=>{setIsOpen(!isOpen)}} justifyContent="space-between" alignItems='center'>
+        <Text>
+          { isOpen ? (<ChevronDownIcon boxSize={4} mr={2} mb='2px'/>): (<ChevronRightIcon boxSize={4} mr={2} mb='2px'/>) }
+          {history.method}
+          <chakra.code
+            marginLeft='10px'
+            backgroundColor={colorMode === 'dark'? 'gray.800': 'gray.200'}
+            p={1}
+            borderRadius="5px"
+            fontSize='xs'
+          >
+            {history.selectedChain}
+          </chakra.code>
+        </Text>
+        <Text color="secondary" fontSize='xs' textTransform='uppercase'>
+          {history.time.toLocaleString()}
+        </Text>
+      </Flex>
+      <Flex direction="column" display={isOpen ? 'flex': 'none' }>
+        <ReactJson
+          src={history.output}
+          theme={colorMode === 'dark' ? 'colors' : 'bright:inverted'}
+          name={null}
+          style={{padding: '5px', borderRadius: '5px', lineBreak:'anywhere !important'}}
+          sortKeys={true}
+        />
+      </Flex>
+    </Flex>
+  )
+}
