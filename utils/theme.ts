@@ -10,8 +10,8 @@ const theme = extendTheme({
         }),
       },
     fonts: {
-      heading: "Inter, Segoe UI",
-      body: "Inter, Segoe UI",
+      heading: "Outfit, Segoe UI",
+      body: "Outfit, Segoe UI",
     },
     fontWeights: {
       normal: 400,

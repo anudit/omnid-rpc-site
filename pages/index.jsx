@@ -16,6 +16,7 @@ import { EnsCacheContext } from '../contexts/EnsCache';
 import { ethers } from 'ethers';
 import { getAddress, isAddress } from 'ethers/lib/utils';
 import Head from 'next/head';
+import Link from 'next/link';
 
 
 const hexPattern = /0x[0-9A-Fa-f]/g;
@@ -166,7 +167,7 @@ export default function App() {
         <Flex w={{base:"fit-content", md:"33%"}} direction="row">
           <OmnidIcon boxSize={6} mx={4}/>
           <Text ml={4} display={{base:"none", md:"flex"}}>
-            Omnid RPC Playground
+            <Link href="https://rpc.omnid.space/"><b>Omnid RPC</b></Link> &nbsp;— Playground
           </Text>
         </Flex>
         <Flex w={{base:"100%", md:"33%"}} direction="row" justifyContent='center'>
@@ -221,7 +222,7 @@ export default function App() {
                       "method": e?.string,
                     })
                   }}
-                  fontWeight={300}
+                  fontWeight={selectedMethod === e?.string? 600 : 300}
                   fontSize="sm"
                 >
                   {e?.string}
@@ -317,7 +318,7 @@ export default function App() {
             }} />
           </Flex>
           {
-            history.map((hist, oid)=>(
+            history.slice(0).reverse().map((hist, oid)=>(
                 <HistoryItem history={hist} key={oid} />
               )
             )
