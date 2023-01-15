@@ -1,5 +1,6 @@
+import { Dictionary, RpcMethod } from "../types";
 
-const supportFunctions = {
+const supportFunctions: Dictionary<RpcMethod> = {
     'web3_clientVersion': {
         description: "Returns the current client version.",
         params: []
@@ -40,7 +41,7 @@ const supportFunctions = {
         description: "Returns the value from a storage position at a given address.",
         params: [{
             name: 'account',
-            type: 'hex',
+            type: 'address',
             required: true,
             description: 'Address of the storage'
         },
@@ -54,7 +55,7 @@ const supportFunctions = {
             name: 'block',
             type: 'blockNumber',
             required: true,
-            description: 'Block Number'
+            description: "Block Number or latest, earliest, pending"
         }]
     },
     'eth_chainId': {
@@ -166,7 +167,121 @@ const supportFunctions = {
             required: true,
             description: 'The signed transaction data'
         }]
-    }
+    },
+    'eth_call': {
+        description: "Call any read-only function on a deployed contract.",
+        params: [{
+            name: 'address',
+            type: 'functionCall',
+            required: true,
+        }]
+    },
+    'eth_getBlockByHash': {
+        description: "Returns information about a block by hash.",
+        params: [{
+            name: 'BlockHash',
+            type: 'hex',
+            required: true,
+            description: 'Block Hash'
+        },{
+            name: 'isFull',
+            type: 'boolean',
+            required: false,
+            description: 'Show Full Block Details?'
+        }]
+    },
+    'eth_getBlockByNumber': {
+        description: "Returns information about a block by block number.",
+        params: [{
+            name: 'BlockNumber',
+            type: 'blockNumber',
+            required: true,
+            description: 'Block Number or latest, earliest, pending'
+        },{
+            name: 'isFull',
+            type: 'boolean',
+            required: false,
+            description: 'Show Full Block Details?'
+        }]
+    },
+    'eth_getTransactionByHash': {
+        description: "Returns the information about a transaction requested by transaction hash.",
+        params: [{
+            name: 'BlockHash',
+            type: 'hex',
+            required: true,
+            description: 'Block Hash'
+        }]
+    },
+    'eth_getTransactionByBlockHashAndIndex': {
+        description: "Returns information about a transaction by block hash and transaction index position.",
+        params: [{
+            name: 'BlockHash',
+            type: 'hex',
+            required: true,
+            description: 'Block Hash'
+        },
+        {
+            name: 'index',
+            type: 'number',
+            required: true,
+            description: 'Transaction index'
+        }]
+    },
+    'eth_getTransactionByBlockNumberAndIndex': {
+        description: "Returns information about a transaction by block number and transaction index position.",
+        params: [{
+            name: 'BlockNumber',
+            type: 'blockNumber',
+            required: true,
+            description: 'Block Number or latest, earliest, pending'
+        },
+        {
+            name: 'index',
+            type: 'number',
+            required: true,
+            description: 'Transaction index'
+        }]
+    },
+    'eth_getTransactionReceipt': {
+        description: "Returns the receipt of a transaction by transaction hash.",
+        params: [{
+            name: 'TransactionHash',
+            type: 'hex',
+            required: true,
+            description: 'Transaction Hash'
+        }]
+    },
+    'eth_getUncleByBlockHashAndIndex': {
+        description: "Returns information about a uncle of a block by hash and uncle index position.",
+        params: [{
+            name: 'BlockHash',
+            type: 'hex',
+            required: true,
+            description: 'Block Hash'
+        },
+        {
+            name: 'index',
+            type: 'number',
+            required: true,
+            description: 'Transaction index'
+        }]
+    },
+    'eth_getUncleByBlockNumberAndIndex': {
+        description: "Returns information about a uncle of a block by number and uncle index position.",
+        params: [{
+            name: 'BlockNumber',
+            type: 'blockNumber',
+            required: true,
+            description: 'Block Number or latest, earliest, pending'
+        },
+        {
+            name: 'index',
+            type: 'number',
+            required: true,
+            description: 'Transaction index'
+        }]
+    },
 }
 
 export default supportFunctions;

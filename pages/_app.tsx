@@ -3,6 +3,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { Inter } from '@next/font/google'
 
 import theme from '../utils/theme';
+import { EnsCacheProvider } from '../contexts/EnsCache';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -12,7 +13,9 @@ const inter = Inter({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
-      <Component {...pageProps} className={inter.className} />
+      <EnsCacheProvider>
+        <Component {...pageProps} className={inter.className} />
+      </EnsCacheProvider>
     </ChakraProvider>
   )
 }

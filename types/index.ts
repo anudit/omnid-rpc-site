@@ -6,3 +6,19 @@ export type chainDataDeets = {
     chainName: string;
     blockExplorer: string;
 }
+
+export type RpcParam = {
+    name: string,
+    type: "hex" | "blockNumber" | "address" | "functionCall" | "boolean" | "number",
+    required: boolean,
+    description?: string;
+}
+
+export type RpcMethod = {
+    description: string,
+    params: Array<RpcParam>
+}
+
+export type Dictionary<T> = {
+    [key: string]: T
+}

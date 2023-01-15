@@ -11,3 +11,11 @@ export const OmnidIcon = createIcon({
         </g>
     )
 });
+
+export const CodeIcon = createIcon({
+    displayName: 'CodeIcon',
+    viewBox: '0 0 24 24',
+    path: (
+        <path fill="currentColor" d="M3.3 5.3a1 1 0 0 1 1.4 0l6 5.5a1 1 0 0 1 0 1.4l-6 6.5a1 1 0 0 1-1.4-1.4l5.3-5.7-5.3-4.9a1 1 0 0 1 0-1.4zM9 18c0-.6.4-1 1-1h10a1 1 0 1 1 0 2H10a1 1 0 0 1-1-1z"/>
+    )
+});
