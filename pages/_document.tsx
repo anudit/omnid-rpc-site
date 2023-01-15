@@ -1,37 +1,31 @@
 import { ColorModeScript } from '@chakra-ui/react'
-import { NextSeo } from 'next-seo';
 import { Html, Head, Main, NextScript } from 'next/document'
 import theme from '../utils/theme';
 
 export default function Document() {
   return (
     <Html lang="en">
-      <Head />
-      <NextSeo
-        title="Omnid - RPC Proxy"
-        description="An open-source, self-hostable RPC Proxy that scans transactions before sending them to the chain for malicious/phishing activity."
-        canonical="https://www.rpc.omnid.space/"
-        openGraph={{
-          url: 'https://rpc.omnid.space',
-          title: 'Omnid - RPC Proxy',
-          description: 'An open-source, self-hostable RPC Proxy that scans transactions before sending them to the chain for malicious/phishing activity.',
-          images: [
-            {
-              url: 'https://res.cloudinary.com/anudit/image/upload/v1663422373/convo/thumbnails.png',
-              width: 1280,
-              height: 720,
-              alt: 'Omnid RPC Proxy Thumbnail',
-              type: 'image/png',
-            }
-          ],
-          siteName: 'Omnid - RPC Proxy',
-        }}
-        twitter={{
-          handle: '@0xOmnid',
-          site: 'https://rpc.omnid.space',
-          cardType: 'summary_large_image',
-        }}
-      />
+      <Head>
+            <meta name="title" content="Omnid - RPC Playground" />
+            <meta name="description" content="An open-source, self-hostable RPC Proxy that scans transactions before sending them to the chain for malicious/phishing activity." />
+            <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛝</text></svg>" />
+            <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛝</text></svg>"/>
+            <link rel="manifest" href="/manifest.json"></link>
+
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://playground.omnid.space/" />
+            <meta property="og:title" content="Omnid - RPC Playground" />
+            <meta property="og:description" content="An open-source, self-hostable RPC Proxy that scans transactions before sending them to the chain for malicious/phishing activity." />
+            <meta property="og:image" content={"https://res.cloudinary.com/anudit/image/upload/v1673782417/convo/poster-playground.png"} />
+
+            <meta property="twitter:card" content="summary_large_image" />
+            <meta property="twitter:url" content="https://playground.omnid.space/" />
+            <meta property="twitter:title" content="Omnid - RPC Playground" />
+            <meta property="twitter:description" content="An open-source, self-hostable RPC Proxy that scans transactions before sending them to the chain for malicious/phishing activity." />
+            <meta property="twitter:image" content={"https://res.cloudinary.com/anudit/image/upload/v1673782417/convo/poster-playground.png"} />
+
+            <meta name="theme-color" content="#000" />
+        </Head>
       <body>
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <Main />

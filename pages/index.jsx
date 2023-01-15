@@ -15,6 +15,7 @@ import { SearchIcon } from '@chakra-ui/icons';
 import { EnsCacheContext } from '../contexts/EnsCache';
 import { ethers } from 'ethers';
 import { getAddress, isAddress } from 'ethers/lib/utils';
+import Head from 'next/head';
 
 
 const hexPattern = /0x[0-9A-Fa-f]/g;
@@ -156,6 +157,10 @@ export default function App() {
   return (
     <HotKeys handlers={handlers} keyMap={keyMap}>
     <Flex direction="column">
+
+      <Head>
+        <title>Omnid - RPC Playground</title>
+      </Head>
 
       <Flex direction='row' height="50px" borderBottom="1px" borderBottomColor='hsl(0deg 0% 9%)' w="100%" justifyContent='space-around' alignItems='center'>
         <Flex w={{base:"fit-content", md:"33%"}} direction="row">
