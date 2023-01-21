@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { chakra, InputGroup, InputLeftElement, IconButton, Heading, Input, Flex, Text, Select, Button, useColorMode, Spinner, Textarea, Switch } from "@chakra-ui/react";
-import { Box, SunIcon, MoonIcon, ArrowRightIcon, ArrowDownIcon, ChevronRightIcon, ChevronDownIcon, DeleteIcon } from "@chakra-ui/icons";
+import { chakra, InputGroup, InputLeftElement, IconButton, Heading, Input, Flex, Text, Select, Button, useColorMode, Spinner, Textarea, Switch, Tooltip } from "@chakra-ui/react";
+import { Box, SunIcon, MoonIcon, ArrowRightIcon, ArrowDownIcon, ChevronRightIcon, ChevronDownIcon, DeleteIcon, RepeatIcon } from "@chakra-ui/icons";
 import { HotKeys } from "react-hotkeys";
 import fuzzy from 'fuzzy';
 import dynamic from 'next/dynamic'
@@ -82,7 +82,7 @@ export default function App() {
 
           if (Boolean(ethCallAddress && ethCallMethod) === true){
             let callData = {
-              data: ethCallMethod + ethCallMethodData.replace('0x', ''),
+              data: ethCallMethodData,
               to: ethCallAddress
             }
 
@@ -305,7 +305,12 @@ export default function App() {
         </Flex>
 
         <Flex direction="column" width={{base: "100%", md: "calc( calc(100% - 350px) / 3 )"}} p={4} overflowY="scroll" height={{base: "600px", md: "calc(100vh - 50px)"}} >
-          <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>Request</Text>
+          <Flex direction='row' justifyContent='space-between'>
+            <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>Request</Text>
+            <Tooltip label='Refresh Request Data' placement='left' >
+              <RepeatIcon boxSize='12px' cursor='pointer' _hover={{color: 'green.500'}}  onClick={updateInputs} />
+            </Tooltip>
+          </Flex>
           <ReactJson src={rpcInput} theme={colorMode === 'dark' ? 'colors' : 'bright:inverted'} name={null} style={{padding: '5px', borderRadius: '5px', lineBreak:'anywhere'}} sortKeys={true}/>
           <br/>
           <Text color="secondary" fontSize='xs' textTransform='uppercase' mb={1}>Response</Text>
@@ -334,6 +339,11 @@ const FuntionCallDetails = ({updateInputs}) => {
 
   const [abi, setAbi] = useState('');
   const [intf, setInterface] = useState(false);
+  const [selectedFunction, setSelectedFunction] = useState(false);
+  const [encodedInputs, setEncodedInputs] = useState("");
+  const [error, setError] = useState("");
+
+
   let { colorMode } = useColorMode();
 
   useEffect(()=>{
@@ -343,7 +353,6 @@ const FuntionCallDetails = ({updateInputs}) => {
         return e?.stateMutability === 'view';
       });
       const iface = new ethers.utils.Interface(tempabi);
-      console.log('inf', iface);
       setInterface(iface);
 
     } catch (error) {
@@ -351,6 +360,22 @@ const FuntionCallDetails = ({updateInputs}) => {
     }
 
   },[abi])
+
+
+  function updateEncodedRes(){
+    if (intf && selectedFunction){
+      try {
+        let encData = intf.encodeFunctionData(selectedFunction, intf.getFunction(selectedFunction).inputs.map((e, oid)=>{
+          return document.getElementById(`call_param_${oid+1}`).value;
+        }))
+        setEncodedInputs(encData);
+        updateInputs();
+        setError(false)
+      } catch (err) {
+        setError(err)
+      }
+    }
+  }
 
   function getFromEtherscan(){
     let add = document.getElementById('param_address').value.trim();
@@ -416,14 +441,35 @@ const FuntionCallDetails = ({updateInputs}) => {
             Method <span style={{color:"red", display:'inline'}}>&nbsp;*</span>
           </Text>
         </Flex>
-        <Select mt={1} isDisabled={!Boolean(intf)} id="param_method" onChange={updateInputs}>
+        <Select mt={1} isDisabled={!Boolean(intf)} id="param_method" onChange={(e)=>{
+          setSelectedFunction(e.currentTarget.value);
+          updateEncodedRes();
+          updateInputs();
+        }}>
           {
             intf && Object.keys(intf.functions).map((name, oid)=>{
               return (<option value={intf.getSighash(name)} key={oid}>{name}</option>)
             })
           }
         </Select>
-        <Textarea placeholder="data" mt={1}  id="param_method_data" isDisabled={!Boolean(intf)} onChange={updateInputs}/>
+        {
+          selectedFunction && intf.getFunction(selectedFunction).inputs.map((param, oid)=>{
+            return (
+              <Input mt={1} id={`call_param_${oid+1}`} placeholder={`${param.type}`} key={oid} onChange={updateEncodedRes} onPaste={updateEncodedRes}/>
+            )
+          })
+        }
+        {
+          error && <Text color="red.800" fontSize='sm' mt={2}>{error.message}</Text>
+        }
+        <Textarea
+          display='none'
+          placeholder="data"
+          mt={1}
+          id="param_method_data"
+          isDisabled={true}
+          value={encodedInputs}
+        />
       </Flex>
     </>
 
@@ -446,8 +492,8 @@ const HistoryItem = ({history, key}) => {
       mb={1}
       cursor="pointer"
     >
-      <Flex direction="row" onClick={()=>{setIsOpen(!isOpen)}} justifyContent="space-between" alignItems='center'>
-        <Text>
+      <Flex direction={{base: "column", xl:"row"}} onClick={()=>{setIsOpen(!isOpen)}} justifyContent="space-between" alignItems='center'>
+        <Text whiteSpace='nowrap' overflow='hidden' textOverflow='ellipsis'>
           { isOpen ? (<ChevronDownIcon boxSize={4} mr={2} mb='2px'/>): (<ChevronRightIcon boxSize={4} mr={2} mb='2px'/>) }
           {history.method}
           <chakra.code
