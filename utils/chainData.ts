@@ -107,13 +107,13 @@ const networks = new Map<supportedNetworkIds, chainDataDeets>([
         "rpc": `https://rpc.omnid.space/arbitrum-nova`,
         "chainId": "0xA4BA",
         "chainName": "Omnid Arbitrum Nova",
-        "blockExplorer": "https://nova-explorer.arbitrum.io"
+        "blockExplorer": "https://nova.arbiscan.io"
     }],
     ["arbitrum-testnet", {
         rpc: `https://rpc.omnid.space/arbitrum-testnet`,
         chainId: '0x66EED',
         chainName: 'Omnid Arbitrum Testnet',
-        blockExplorer: 'https://goerli-rollup-explorer.arbitrum.io'
+        blockExplorer: 'https://goerli.arbiscan.io'
     }]
     ])
 

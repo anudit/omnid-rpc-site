@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic'
 const ReactJson = dynamic(() => import('react-json-view'), {
   ssr: false,
 })
-import { CodeIcon, OmnidIcon } from "../components/Icons";
+import { CodeIcon, EtherscanIcon, OmnidIcon } from "../components/Icons";
 
 import networks from "../utils/chainData";
 import supportedFunctions from '../utils/supportedFunctions';
@@ -247,7 +247,7 @@ export default function App() {
                   {
                     supportedFunctions[selectedMethod].params.map((param, id)=>{
                       if (param.type ==='functionCall') return (
-                        <FuntionCallDetails updateInputs={updateInputs}/>
+                        <FuntionCallDetails updateInputs={updateInputs} selectedChain={selectedChain}/>
                       )
                       if (param.type ==='boolean') return (
                         <Flex
@@ -332,7 +332,7 @@ export default function App() {
 
 const FuntionCallDetails = ({updateInputs}) => {
 
-  const [abi, setAbi] = useState([]);
+  const [abi, setAbi] = useState('');
   const [intf, setInterface] = useState(false);
   let { colorMode } = useColorMode();
 
@@ -352,9 +352,17 @@ const FuntionCallDetails = ({updateInputs}) => {
 
   },[abi])
 
+  function getFromEtherscan(){
+    let add = document.getElementById('param_address').value.trim();
+    if (isAddress(add)){
+      fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${add}`).then(r=>r.json()).then(e=>{
+        setAbi(e['result'])
+      })
+    }
+  }
+
   return (
     <>
-
       <Flex
         direction="column"
         background={`hsl(0deg 0% 9% / ${colorMode === 'dark' ? 8 : 1}0%)`}
@@ -380,17 +388,20 @@ const FuntionCallDetails = ({updateInputs}) => {
         borderRadius="8px"
         mb={4}
       >
-        <Flex direction="row" align="center">
-          <Text>
-            ABI <span style={{color:"red", display:'inline'}}>&nbsp;*</span>
-          </Text>
-          <Text color="hsl(0deg 0% 50% / 50%)" fontSize="xs" ml={1}>
-            (JSON)
-          </Text>
+        <Flex direction="row" justifyContent='space-between'>
+          <Flex direction="row" alignItems="center">
+            <Text>
+              ABI <span style={{color:"red", display:'inline'}}>&nbsp;*</span>
+            </Text>
+            <Text color="hsl(0deg 0% 50% / 50%)" fontSize="xs" ml={1}>
+              (JSON)
+            </Text>
+          </Flex>
+          <EtherscanIcon  m={1} title="Fetch ABI from Etherscan" onClick={getFromEtherscan} cursor='pointer' />
         </Flex>
         <Textarea onChange={(e)=>{
           setAbi(e.currentTarget.value);
-        }} mt={1} placeholder='ABI of the Contract'/>
+        }} value={abi}  mt={1} placeholder='ABI of the Contract'/>
       </Flex>
 
       <Flex
