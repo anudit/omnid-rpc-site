@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic'
 const ReactJson = dynamic(() => import('react-json-view'), {
   ssr: false,
 })
-import { CodeIcon, EtherscanIcon, OmnidIcon } from "../components/Icons";
+import { CodeIcon, EtherscanIcon, GlobeIcon, OmnidIcon } from "../components/Icons";
 
 import networks from "../utils/chainData";
 import supportedFunctions from '../utils/supportedFunctions';
@@ -43,6 +43,7 @@ export default function App() {
   let [ rpcOutput, setRpcOutput ] = useState({});
   let [ loading, setLoading ] = useState(false);
   let [ history, setHistory ] = useState([]);
+  let [ manualRpc, setManualRpc ] = useState(false);
   let { colorMode, toggleColorMode } = useColorMode();
   let { ensToAddress } = useContext(EnsCacheContext);
 
@@ -120,7 +121,7 @@ export default function App() {
 
   async function executeCall(){
     setLoading(true);
-    fetch(networks.get(selectedChain).rpc, {
+    fetch(Boolean(manualRpc) === true ? manualRpc : networks.get(selectedChain).rpc, {
       method: "POST",
       body:JSON.stringify(rpcInput),
       headers: {
@@ -132,6 +133,7 @@ export default function App() {
       setHistory((current)=>{
         let newHist = current.concat([{
           selectedChain: selectedChain,
+          manualRpc: manualRpc,
           time: new Date(),
           method: rpcInput?.method,
           params: Boolean(rpcInput?.params) ? rpcInput?.params: null,
@@ -171,16 +173,29 @@ export default function App() {
           </Text>
         </Flex>
         <Flex w={{base:"100%", md:"33%"}} direction="row" justifyContent='center'>
-          <Select w={{base: "100%", md:"300px"}} defaultValue='mainnet' size="sm" onChange={(e)=>{
-            console.log('setting', e.currentTarget.value)
-            setSelectedChain(e.currentTarget.value);
-          }}>
-            {
-              Array.from(networks.keys()).map((net)=>{
-                return (<option key={net} value={net}>{networks.get(net).chainName.replace('Omnid ', '')}</option>)
-              })
-            }
-          </Select>
+          {
+            Boolean(manualRpc) === true ? (
+              <Input w={{base: "100%", md:"300px"}} defaultValue='https://eth.llamarpc.com' size="sm" onChange={e=>{
+                setManualRpc(e.currentTarget.value);
+              }} />
+            ) : (
+              <Select w={{base: "100%", md:"300px"}} defaultValue='mainnet' size="sm" onChange={(e)=>{
+                console.log('setting', e.currentTarget.value)
+                setSelectedChain(e.currentTarget.value);
+              }}>
+                {
+                  Array.from(networks.keys()).map((net)=>{
+                    return (<option key={net} value={net}>{networks.get(net).chainName.replace('Omnid ', '')}</option>)
+                  })
+                }
+              </Select>
+            )
+          }
+          <IconButton variant='ghost' icon={<GlobeIcon />} size="sm" br='100px' ml='3px' onClick={()=>{
+            setManualRpc(e=>{
+              return Boolean(e) === false ? 'https://eth.llamarpc.com' : false;
+            })
+          }}/>
         </Flex>
         <Flex w={{base:"fit-content", md:"33%"}} alignItems="center" flexDirection='row-reverse'>
           <IconButton mr={4} variant="ghost" onClick={toggleColorMode}  icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}/>
@@ -335,7 +350,7 @@ export default function App() {
   )
 }
 
-const FuntionCallDetails = ({updateInputs}) => {
+const FuntionCallDetails = ({updateInputs, selectedChain}) => {
 
   const [abi, setAbi] = useState('');
   const [intf, setInterface] = useState(false);
@@ -380,9 +395,10 @@ const FuntionCallDetails = ({updateInputs}) => {
   function getFromEtherscan(){
     let add = document.getElementById('param_address').value.trim();
     if (isAddress(add)){
-      fetch(`https://api.etherscan.io/api?module=contract&action=getabi&address=${add}`).then(r=>r.json()).then(e=>{
-        setAbi(e['result'])
-      })
+      if (networks.get(selectedChain).etherscanApi)
+        fetch(`${networks.get(selectedChain).etherscanApi}/api?module=contract&action=getabi&address=${add}`).then(r=>r.json()).then(e=>{
+          setAbi(e['result'])
+        })
     }
   }
 
@@ -503,7 +519,7 @@ const HistoryItem = ({history, key}) => {
             borderRadius="5px"
             fontSize='xs'
           >
-            {history.selectedChain}
+            {history?.manualRpc === false ? history.selectedChain : "manual"}
           </chakra.code>
         </Text>
         <Text color="secondary" fontSize='xs' textTransform='uppercase'>

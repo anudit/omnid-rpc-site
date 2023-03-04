@@ -10,12 +10,12 @@ const theme = extendTheme({
         }),
       },
     fonts: {
-      heading: "Outfit, Segoe UI",
-      body: "Outfit, Segoe UI",
+      heading: `'Inter', Segoe UI`,
+      body: "'Inter', Segoe UI",
     },
     fontWeights: {
-      normal: 400,
-      medium: 600,
+      normal: 200,
+      medium: 500,
       bold: 900
     },
     config: {
@@ -24,20 +24,40 @@ const theme = extendTheme({
       useSystemColorMode: false
     },
     components: {
+      Menu: {
+        baseStyle: (props: StyleFunctionProps) => ({
+          list: {
+            bg: props.colorMode === "dark" ? "#111111db" : "white",
+            backdropFilter: "blur(24px)",
+            border: 'none'
+          },
+          item: {
+            bg: props.colorMode === 'dark' ? 'hsl(0deg 0% 12% / 0%)' : "hsl(0deg 0% 12% / 0%)",
+            _hover: {
+              bg: props.colorMode === 'dark' ? 'hsl(0deg 0% 12%)' : "hsl(0deg 0% 12% / 9%)",
+            },
+            _focus: {
+              bg: props.colorMode === 'dark' ? 'hsl(0deg 0% 12%)' : "hsl(0deg 0% 12% / 9%)",
+            },
+          },
+        }),
+      },
       Modal: {
         baseStyle: (props: StyleFunctionProps) => ({
           dialog: {
-            bg: props.colorMode === "dark" ? "#111" : "white",
+            bg: props.colorMode === "dark" ? "#111111db" : "white",
+            backdropFilter: "blur(24px)"
           },
-        })
+        }),
       },
       Drawer: {
         baseStyle: (props: StyleFunctionProps) => ({
           dialog: {
-            bg: props.colorMode === "dark" ? "#111" : "white",
+            bg: props.colorMode === "dark" ? "#111111db" : "white",
+            backdropFilter: "blur(24px)"
           },
-        })
-      }
+        }),
+      },
     }
 })
 

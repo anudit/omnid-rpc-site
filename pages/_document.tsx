@@ -24,6 +24,10 @@ export default function Document() {
             <meta property="twitter:description" content="An open-source, self-hostable RPC Proxy that scans transactions before sending them to the chain for malicious/phishing activity." />
             <meta property="twitter:image" content={"https://res.cloudinary.com/anudit/image/upload/v1673782417/convo/poster-playground.png"} />
 
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;500;800&display=swap" rel="stylesheet" />
+              
             <meta name="theme-color" content="#000" />
         </Head>
       <body>
